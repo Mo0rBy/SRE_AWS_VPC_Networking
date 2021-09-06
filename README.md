@@ -59,3 +59,99 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
     Set inbound and outbound rules for this
 
 - Step 6: Create a Security Group for our app
+
+---
+# Creating a custom VPC with subnets
+## Create a VPC
+1. Navigate to `Your VPCs` in the dashboard and select `Create VPC`
+2. Name your VPC --> *SRE_will_VPC*
+3. Set an IPv4 CIDR block
+    
+    In my case, it is set to `10.101.0.0/16`
+
+4. Select `Create VPC`
+
+## Create an Internet Gateway (IG)
+1. Navigate to `Internet Gateways` in the dashboard and select `Create internet gateway`
+2. Name your IG --> *SRE_will_IG*
+3. Find your IG in the list, select `Actions -> Attach to VPC` and select your VPC
+
+## Create Subnets
+1. Navigate to `Subnets` in the dashboard and select `Create subnet`
+2. Select your VPC from the dropdown menu
+3. Name your subnet --> *SRE_will_XYZ_subnet*
+4. Select your preferred availability zone
+5. Set an IPv4 CIDR block.
+
+    In this case, the VPC IPv4 CIDR is set to `10.101.0.0/16`, therefore, the 1st subnet should be set to `10.101.1.0/24`
+
+6. More than 1 subnet can be created at once within this menu. Create the number of required subnets with appropriate names and IPv4 CIDR blocks.
+
+    *N.B. We are creating a public and a private subnet.*
+
+## Create a Route Table (RT)
+1. Navigate to `Route Tables` in the dashboard and select `Create route table`
+2. Name your RT --> *SRE_will_RT*
+3. Select your VPC from the dropdown menu
+4. After creating the RT, select it in the list, go to the `Routes` tab and `Edit routes`
+5. `Add route` with destination as `0.0.0.0/0` and target your IG (created previously)
+
+    *Click the `Target` box and select `Internet Gateway` from the dropdown menu. After this, your IG should be shown.*
+
+6. Select your RT in the list, go to the `Subnet associations` tab and `Edit subnet associations`. Select your subnets and `Save associations`
+
+## Create Network Access Control List (NACL)
+*Note that when creating a VPC, a default NACL will have been created. For this NACL, all inbound and outbound from other NACL's must be added.*
+
+1. Navigate to `Network ACLs` in the dashboard and select `Create network ACL`
+2. Name your NACL --> *SRE_will_XYZ_ACL*
+3. Select your VPC from the dropdown menu. 
+
+    *N.B. We will create a public and a private NACL for both our subnets*
+
+4. Select your NACL from the list, go to the `Inbound rules` tab and edit your rules. Do the same for `Outbound rules`.
+
+---
+### Public Subnet Rules
+#### Inbound Rules
+| Rule | Source IP | Protocol | Port       | Allow/Deny |
+|------|-----------|----------|------------|------------|
+| 100  | 0.0.0.0/0 | HTTP     | 80         | ALLOW      |
+| 110  | My IP     | SSH      | 22         | ALLOW      |
+| 120  | 0.0.0.0/0 | TCP      | 1024-65535 | ALLOW      |
+| *    | 0.0.0.0/0 | ALL      | ALL        | DENY       |
+
+**Must replace `My IP` with your actual IP**
+#### Outbound Rules
+| Rule | Source IP     | Protocol | Port       | Allow/Deny |
+|------|---------------|----------|------------|------------|
+| 100  | 0.0.0.0/0     | HTTP     | 80         | ALLOW      |
+| 110  | 10.101.1.0/24 | TCP      | 27017      | ALLOW      |
+| 120  | 0.0.0.0/0     | TCP      | 1024-65535 | ALLOW      |
+| *    | 0.0.0.0/0     | ALL      | ALL        | DENY       |
+
+*N.B. `10.101.1.0/24` is the address of the public subnet. This is to allow the app machine to send a request for data from the db machine.*
+
+### Private Subnet Rules
+#### Inbound Rules
+| Rule | Source IP     | Protocol | Port       | Allow/Deny |
+|------|---------------|----------|------------|------------|
+| 100  | 10.101.1.0/24 | TCP      | 27017      | ALLOW      |
+| 110  | My IP         | SSH      | 22         | ALLOW      |
+| 120  | 0.0.0.0/0     | TCP      | 1024-65535 | ALLOW      |
+| *    | 0.0.0.0/0     | ALL      | ALL        | DENY       |
+
+*Again, the public subnet address is required here. This is to allow the app machine to request data from the db machine.*
+
+#### Outbound Rules
+| Rule | Source IP | Protocol | Port       | Allow/Deny |
+|------|-----------|----------|------------|------------|
+| 100  | 0.0.0.0/0 | HTTP     | 80         | ALLOW      |
+| 120  | 0.0.0.0/0 | TCP      | 1024-65535 | ALLOW      |
+| *    | 0.0.0.0/0 | ALL      | ALL        | DENY       |
+
+---
+# Create EC2 Instances
+Now that the network is setup, allowing communication between the subnets, we can initilise the app and db machines, ensuring to set them up correctly. If you don't know how to set these machines up, go to > https://github.com/Mo0rBy/creating_2Tier_architecture_AWS
+
+**When launching your machines, select your VPC and subnets that you have created!**
