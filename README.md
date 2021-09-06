@@ -1,6 +1,6 @@
 # AWS Virtual Private Cloud (VPC) & CIDR Blocks
 
-![image](./img/AWS_deployment_networking_security.PNG)
+![](https://github.com/Mo0rBy/SRE_AWS_VPC_Networking/blob/main/img/AWS_deployment_networking_security.png)
 
 ---
 #### What is a VPC?
