@@ -129,11 +129,11 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
 | Rule | Source IP     | Protocol | Port       | Allow/Deny |
 |------|---------------|----------|------------|------------|
 | 100  | 0.0.0.0/0     | HTTP     | 80         | ALLOW      |
-| 110  | 10.101.1.0/24 | TCP      | 27017      | ALLOW      |
+| 110  | 10.101.2.0/24 | TCP      | 27017      | ALLOW      |
 | 120  | 0.0.0.0/0     | TCP      | 1024-65535 | ALLOW      |
 | *    | 0.0.0.0/0     | ALL      | ALL        | DENY       |
 
-*N.B. `10.101.1.0/24` is the address of the public subnet. This is to allow the app machine to send a request for data from the db machine.*
+*N.B. `10.101.2.0/24` is the address of the private subnet. This is to allow the app machine to send a request for data from the db machine.*
 
 ### Private Subnet Rules
 #### Inbound Rules
@@ -158,3 +158,17 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
 Now that the network is setup, allowing communication between the subnets, we can initilise the app and db machines, ensuring to set them up correctly. If you don't know how to set these machines up, go to > https://github.com/Mo0rBy/creating_2Tier_architecture_AWS
 
 **When launching your machines, select your VPC and subnets that you have created!**
+
+## DB machine with private IP
+
+When launching the db machine, **DISABLE** the `Auto-assign Public IP` option. This will prevent a public IP address being assigned to the machine, making it much more secure.
+
+![](./img/Disable_public_IP.PNG)
+
+In order for the app machine to connect to the database, the `DB_HOST` environment variable must be set using the db machine's private IPv4 address. We can write the variable to the `/etc/environement` file as well, to ensure that the variable is persistent when logging in and out of the machine.
+
+*Make sure that `[DB-IP]` is replaced with private IPv4 address of the db machine*
+```
+echo "DB_HOST=[DB-IP]:27017/posts" | sudo tee -a /etc/environment
+export DB_HOST=[DB-IP]:27017/posts
+```
