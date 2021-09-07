@@ -62,6 +62,9 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
 
 ---
 # Creating a custom VPC with subnets
+**Diagram of what we want to create**
+![](./img/Custom_diagram.PNG)
+
 ## Create a VPC
 1. Navigate to `Your VPCs` in the dashboard and select `Create VPC`
 2. Name your VPC --> *SRE_will_VPC*
