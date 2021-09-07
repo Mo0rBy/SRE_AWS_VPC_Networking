@@ -163,7 +163,7 @@ Now that the network is setup, allowing communication between the subnets, we ca
 
 When launching the db machine, **DISABLE** the `Auto-assign Public IP` option. This will prevent a public IP address being assigned to the machine, making it much more secure.
 
-![](./img/Disable_public_IP.PNG)
+![](https://github.com/Mo0rBy/SRE_AWS_VPC_Networking/blob/main/img/Disable_public_IP.png)
 
 In order for the app machine to connect to the database, the `DB_HOST` environment variable must be set using the db machine's private IPv4 address. We can write the variable to the `/etc/environement` file as well, to ensure that the variable is persistent when logging in and out of the machine.
 
