@@ -32,6 +32,8 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
 
 ## Security Groups
 
+# AWS Global Infrastructure
+
 ---
 
 ## Networking Task
