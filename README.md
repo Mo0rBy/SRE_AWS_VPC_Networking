@@ -48,7 +48,7 @@ NACL's are stateless - we have to explicility allow inbound **AND** outbound rul
 
 - Step 3: Create route tables
 
-    Step 3.1: Edit route and insert your IG in `target`
+    Step 3.1: Edit route and insert your IG in `target` - In `destination`, input `0.0.0.0/0`
 
 - Step 4: Create public subnet
 
